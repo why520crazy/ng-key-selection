@@ -4,12 +4,16 @@
         selectedClass  : "selected",
         selectorClass  : "selection-item",
         callbacks      : {
-            hover : angular.noop,
-            select: angular.noop
+            beforeHover: function () {
+                return true;
+            },
+            hover      : angular.noop,
+            select     : angular.noop
         },
+        filterClass    : "ng-hide",
         preventDefault : true,
         scrollMargin   : 5,
-        scrollContainer: "document",
+        scrollContainer: "body",
         keyActions     : [ //use any and as many keys you want. available actions: "select", "up", "down"
             {keyCode: 13, action: "select"}, //enter
             {keyCode: 38, action: "up"}, //up
@@ -70,12 +74,12 @@
 
                 KeySelectionPlugin.prototype._init = function () {
                     this._id = new Date().getTime() + Math.random().toString(36).substr(2);
-                    var $scrollContainer =
-                        this._options.scrollContainer === 'document'
-                            ? $document
-                            : angular.element($document[0].querySelector(this._options.scrollContainer));
+                    var scrollContainer =
+                        this._options.scrollContainer === 'body'
+                            ? $document[0]
+                            : $document[0].querySelector(this._options.scrollContainer);
                     $document.on('keydown', this._keydownHandler);
-                    this.$scrollContainer = $scrollContainer;
+                    this.scrollContainer = scrollContainer;
                 };
 
                 KeySelectionPlugin.prototype._getOffset = function (elem) {
@@ -91,7 +95,6 @@
                     if (!elem.getClientRects().length) {
                         return {top: 0, left: 0};
                     }
-
                     rect = elem.getBoundingClientRect();
 
                     // Make sure element is not hidden (display: none)
@@ -109,34 +112,43 @@
                 };
 
                 KeySelectionPlugin.prototype._getOuterHeight = function (element) {
-                    var height = element.clientHeight;
-                    var computedStyle = window.getComputedStyle(element);
+                    var _element = element.documentElement ? element.documentElement : element;
+                    var height = _element.clientHeight;
+                    var computedStyle = window.getComputedStyle(_element);
                     height += parseInt(computedStyle.marginTop, 10);
                     height += parseInt(computedStyle.marginBottom, 10);
                     return height;
                 };
 
                 KeySelectionPlugin.prototype._scrollTo = function ($item) {
+                    var scrollContainer = this.scrollContainer.body ? this.scrollContainer.body : this.scrollContainer;
                     var itemOffsetTop = this._getOffset($item[0]).top;
                     var itemOuterHeight = this._getOuterHeight($item[0]);
-                    var containerHeight = this._getOuterHeight(this.$scrollContainer[0]);
-                    var containerTop = this._getOffset(this.$scrollContainer[0]).top;
-                    var containerScrollTop = this.$scrollContainer[0].scrollTop;
+                    var containerHeight = this._getOuterHeight(this.scrollContainer);
+                    var containerTop = this._getOffset(scrollContainer).top;
+                    var containerScrollTop = scrollContainer.scrollTop;
 
                     var topOffset = containerTop - itemOffsetTop;
                     var bottomOffset = itemOffsetTop - (containerTop + containerHeight - itemOuterHeight);
 
                     if (topOffset > 0) { //元素在滚动条的上方遮盖住
-                        this.$scrollContainer[0].scrollTop = containerScrollTop - topOffset - this._options.scrollMargin
+                        scrollContainer.scrollTop = containerScrollTop - topOffset - this._options.scrollMargin
                     } else if (bottomOffset > 0) { //元素在滚动条的下方遮盖住
-                        this.$scrollContainer[0].scrollTop = containerScrollTop + bottomOffset + this._options.scrollMargin;
+                        scrollContainer.scrollTop = containerScrollTop + bottomOffset + this._options.scrollMargin;
                     }
                 };
 
-                KeySelectionPlugin.prototype._switch = function (type) {
+                KeySelectionPlugin.prototype._switch = function (type, event) {
                     var $items = [], $keyHover = null, that = this;
+                    if (!that._options.callbacks.beforeHover(event)) {
+                        return;
+                    }
                     angular.forEach(this._element.children(), function (item) {
                         var $item = angular.element(item);
+                        if ($item.hasClass(that._options.filterClass)) {
+                            $item.removeClass(that._options.hoverClass);
+                            return;
+                        }
                         if ($item.hasClass(that._options.selectorClass)) {
                             $items.push($item);
                         }
