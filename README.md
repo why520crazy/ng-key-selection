@@ -1,9 +1,12 @@
 # ng-key-selection
-ng key selection is a lightweight angular for cycling through arbitrary element collections with arrow keys. 
+ng key selection is a lightweight angular plugin for cycling through arbitrary element collections with arrow keys. 
 Collection members are selectable by keyboard or mouse.
+
 键盘按下（up、down或者left、right） 选择元素，并自动滚动到相关位置的插件
 
 ## demo & download
+
+`bower install ng-key-selection`
 
 ## basic usage
 
