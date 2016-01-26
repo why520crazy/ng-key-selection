@@ -7,7 +7,9 @@ Collection members are selectable by keyboard or mouse.
 ## demo & download
 
 `bower install ng-key-selection`
-
+          
+see [demo](http://why520crazy.github.io/ng-key-selection)
+          
 ## basic usage
 
 ```html
