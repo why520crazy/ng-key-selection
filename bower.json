@@ -1,0 +1,29 @@
+{
+  "name": "ng-key-selection",
+  "version": "0.0.1",
+  "main": "ng-key-selection.js",
+  "homepage": "https://github.com/why520crazy/ng-key-selection",
+  "authors": [
+    "why520crazy <why520crazy@163.com>"
+  ],
+  "description": "",
+  "moduleType": [],
+  "keywords": [
+    "angular",
+    "key",
+    "selection",
+    "selected"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "demo",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.9"
+  }
+}

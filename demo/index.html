@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html ng-app="demoApp">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>ng-key-selection 示例 </title>
+    <style>
+        .container {
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .container > ul > li {
+            display: block;
+            padding: 10px;
+            margin-top: 5px;
+            border: solid 2px red;
+        }
+
+        .key-hover {
+            background: #d8dee8;
+        }
+    </style>
+</head>
+<body>
+<div class="container" ng-controller="demoCtrl as demo">
+    <ul key-selection="demo.keySelectionOptions">
+        <li class="selection-item" ng-repeat="item in demo.items track by $index">
+            {{item}}
+        </li>
+    </ul>
+</div>
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../ng-key-selection.js"></script>
+<script>
+    angular.module("demoApp", ['ng-key-selection'])
+            .controller("demoCtrl", [
+                function () {
+                    var vm = this;
+                    vm.items = [];
+
+                    vm.keySelectionOptions = {
+                        scrollContainer: '.container',
+                        callbacks: {
+                            hover: function (e, $item) {
+                                console.log("hover:" + $item[0].innerHTML);
+                            },
+                            select: function (e, $item) {
+                                console.log("select:" + $item[0].innerHTML);
+                            }
+                        }
+                    };
+                    for (var i = 1; i < 100; i++) {
+                        vm.items.push("item " + i);
+                    }
+
+                }])
+</script>
+</body>
+
+</html>
