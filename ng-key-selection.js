@@ -1,16 +1,16 @@
 (function () {
     var _defaultOptions = {
-        hoverClass: "key-hover",
-        selectedClass: "selected",
-        selectorClass: "selection-item",
-        callbacks: {
-            hover: angular.noop,
+        hoverClass     : "key-hover",
+        selectedClass  : "selected",
+        selectorClass  : "selection-item",
+        callbacks      : {
+            hover : angular.noop,
             select: angular.noop
         },
-        preventDefault: true,
-        scrollMargin: 5,
+        preventDefault : true,
+        scrollMargin   : 5,
         scrollContainer: "document",
-        keyActions: [ //use any and as many keys you want. available actions: "select", "up", "down"
+        keyActions     : [ //use any and as many keys you want. available actions: "select", "up", "down"
             {keyCode: 13, action: "select"}, //enter
             {keyCode: 38, action: "up"}, //up
             {keyCode: 40, action: "down"}, //down
@@ -101,7 +101,7 @@
                         docElem = doc.documentElement;
 
                         return {
-                            top: rect.top + win.pageYOffset - docElem.clientTop,
+                            top : rect.top + win.pageYOffset - docElem.clientTop,
                             left: rect.left + win.pageXOffset - docElem.clientLeft
                         };
                     }
@@ -193,7 +193,7 @@
             function (KeySelectionPlugin) {
                 return {
                     restrict: 'A',
-                    link: function (scope, element, attrs) {
+                    link    : function (scope, element, attrs) {
                         var options = scope.$eval(attrs.keySelection);
                         var selection = new KeySelectionPlugin(element, options);
 
