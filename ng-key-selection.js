@@ -41,6 +41,9 @@
                     this._element = element;
 
                     this._keydownHandler = function (event) {
+                        if (!_self._options.callbacks.beforeHover(event)) {
+                            return;
+                        }
                         var noPropagation = false;
                         var keyCode = event.which || event.keyCode;
                         angular.forEach(_self._options.keyActions, function (keyAction) {
@@ -140,9 +143,6 @@
 
                 KeySelectionPlugin.prototype._switch = function (type, event) {
                     var $items = [], $keyHover = null, that = this;
-                    if (!that._options.callbacks.beforeHover(event)) {
-                        return;
-                    }
                     angular.forEach(this._element.children(), function (item) {
                         var $item = angular.element(item);
                         if ($item.hasClass(that._options.filterClass)) {
