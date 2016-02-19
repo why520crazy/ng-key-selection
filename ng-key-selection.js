@@ -81,7 +81,9 @@
                         this._options.scrollContainer === 'body'
                             ? $document[0]
                             : $document[0].querySelector(this._options.scrollContainer);
-                    $document.on('keydown', this._keydownHandler);
+
+                    (this._options.globalKey ? $document : angular.element(scrollContainer))
+                        .on('keydown', this._keydownHandler);
                     this.scrollContainer = scrollContainer;
                 };
 
@@ -191,7 +193,7 @@
                     $timeout(function () {
                         this._options.callbacks.select(event, this.$keyHover);
                     }.bind(this));
-                    this.$keyHover.addClass(this._options.selectedClass);
+                    this.$keyHover && this.$keyHover.addClass(this._options.selectedClass);
                 };
 
                 KeySelectionPlugin.prototype.destroy = function () {
