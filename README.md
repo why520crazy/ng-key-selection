@@ -41,9 +41,9 @@ see [demo](http://why520crazy.github.io/ng-key-selection)
 
 ```js
 {
-       hoverClass     : "key-hover",
-       selectedClass  : "selected",
-       itemSelector   : ".selection-item",
+       hoverClass     : "key-hover",//键盘上下选中的样式
+       selectedClass  : "selected", //选中后按Enter键选择后的样式
+       itemSelector   : ".selection-item",//选择器
        filterSelector : ".ng-hide",
        callbacks      : {
            beforeHover: function () {

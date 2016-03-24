@@ -65,7 +65,7 @@
                         _options.callbacks = angular.extend({}, _defaultOptions.callbacks, options.callbacks);
                     }
                     this._options = _options;
-                    this._element = element;
+                    this._$element = element;
 
                     this._keydownHandler = function (event) {
                         if (!_self._options.callbacks.beforeHover(event)) {
@@ -172,11 +172,11 @@
 
                 KeySelectionPlugin.prototype._switch = function (type, event) {
                     var $items = [], $keyHover = null, that = this;
-                    angular.forEach(this._element.children(), function (item) {
+                    angular.forEach(this._$element.children(), function (item) {
                         var $item = angular.element(item);
                         if (that._options.filterSelector && match(item, that._options.filterSelector)) {
                             $item.removeClass(that._options.hoverClass);
-                        }else{
+                        } else {
                             if (!that._options.itemSelector || match(item, that._options.itemSelector)) {
                                 $items.push($item);
                             }
@@ -185,7 +185,9 @@
                             }
                         }
                     });
-
+                    if ($items.length <= 0) {
+                        return;
+                    }
                     var index = $items.indexOf($keyHover);
                     $keyHover && $keyHover.removeClass(this._options.hoverClass);
                     if (type === 'up') {
