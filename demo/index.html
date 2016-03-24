@@ -5,7 +5,7 @@
     <title>ng-key-selection 示例 </title>
     <style>
         /*html{*/
-            /*overflow-y: auto;*/
+        /*overflow-y: auto;*/
         /*}*/
         .container {
             overflow-y: auto;
@@ -27,7 +27,7 @@
 <body>
 <div class="container" ng-controller="demoCtrl as demo">
     <ul key-selection="demo.keySelectionOptions">
-        <li class="selection-item" ng-repeat="item in demo.items track by $index">
+        <li ng-class="{true:'selection-item',false:''}[$index !== 2]" ng-repeat="item in demo.items track by $index">
             {{item}}
         </li>
     </ul>
@@ -42,9 +42,11 @@
                     vm.items = [];
 
                     vm.keySelectionOptions = {
+                        globalKey      : true,
+                        //itemSelector:"",
                         scrollContainer: '.container',
-                        callbacks: {
-                            hover: function (e, $item) {
+                        callbacks      : {
+                            hover : function (e, $item) {
                                 console.log("hover:" + $item[0].innerHTML);
                             },
                             select: function (e, $item) {

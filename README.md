@@ -41,22 +41,27 @@ see [demo](http://why520crazy.github.io/ng-key-selection)
 
 ```js
 {
-        hoverClass     : "key-hover",
-        selectedClass  : "selected",
-        selectorClass  : "selection-item",
-        callbacks      : {
-            hover : angular.noop,
-            select: angular.noop
-        },
-        preventDefault : true,
-        scrollMargin   : 5,
-        scrollContainer: "document",
-        keyActions     : [ //use any and as many keys you want. available actions: "select", "up", "down"
-            {keyCode: 13, action: "select"}, //enter
-            {keyCode: 38, action: "up"}, //up
-            {keyCode: 40, action: "down"}, //down
-            {keyCode: 37, action: "up"}, //left
-            {keyCode: 39, action: "down"} //right
-        ]
+       hoverClass     : "key-hover",
+       selectedClass  : "selected",
+       itemSelector   : ".selection-item",
+       filterSelector : ".ng-hide",
+       callbacks      : {
+           beforeHover: function () {
+               return true;
+           },
+           hover      : angular.noop,
+           select     : angular.noop
+       },
+       preventDefault : true,
+       scrollMargin   : 5,
+       scrollContainer: "body",
+       globalKey      : false,//是否是全局事件，如果为false,则会在scrollContainer绑定keydown事件，否则会在document上绑定
+       keyActions     : [ //use any and as many keys you want. available actions: "select", "up", "down"
+           {keyCode: 13, action: "select"}, //enter
+           {keyCode: 38, action: "up"}, //up
+           {keyCode: 40, action: "down"}, //down
+           {keyCode: 37, action: "up"}, //left
+           {keyCode: 39, action: "down"} //right
+       ]
     };
 ```

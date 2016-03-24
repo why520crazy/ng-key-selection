@@ -2,7 +2,8 @@
     var _defaultOptions = {
         hoverClass     : "key-hover",
         selectedClass  : "selected",
-        selectorClass  : "selection-item",
+        itemSelector   : ".selection-item",
+        filterSelector : ".ng-hide",
         callbacks      : {
             beforeHover: function () {
                 return true;
@@ -10,10 +11,10 @@
             hover      : angular.noop,
             select     : angular.noop
         },
-        filterClass    : "ng-hide",
         preventDefault : true,
         scrollMargin   : 5,
         scrollContainer: "body",
+        globalKey      : false,//是否是全局事件，如果为false,则会在scrollContainer绑定keydown事件，否则会在document上绑定
         keyActions     : [ //use any and as many keys you want. available actions: "select", "up", "down"
             {keyCode: 13, action: "select"}, //enter
             {keyCode: 38, action: "up"}, //up
@@ -32,6 +33,32 @@
             '$document',
             '$timeout',
             function ($document, $timeout) {
+                var proto = Element.prototype;
+                var vendor = proto.matches
+                    || proto.matchesSelector
+                    || proto.webkitMatchesSelector
+                    || proto.mozMatchesSelector
+                    || proto.msMatchesSelector
+                    || proto.oMatchesSelector;
+
+                /**
+                 * Match `el` to `selector`.
+                 *
+                 * @param {Element} el
+                 * @param {String} selector
+                 * @return {Boolean}
+                 * @api public
+                 */
+
+                function match(el, selector) {
+                    if (vendor) return vendor.call(el, selector);
+                    var nodes = el.parentNode.querySelectorAll(selector);
+                    for (var i = 0; i < nodes.length; i++) {
+                        if (nodes[i] == el) return true;
+                    }
+                    return false;
+                }
+
                 function KeySelectionPlugin(element, options) {
                     var _options = angular.extend({}, _defaultOptions, options), _self = this;
                     if (options && options.callbacks) {
@@ -76,7 +103,7 @@
                 };
 
                 KeySelectionPlugin.prototype._init = function () {
-                    this._id = new Date().getTime() + Math.random().toString(36).substr(2);
+                    //this._id = new Date().getTime() + Math.random().toString(36).substr(2);
                     var scrollContainer =
                         this._options.scrollContainer === 'body'
                             ? $document[0]
@@ -147,15 +174,15 @@
                     var $items = [], $keyHover = null, that = this;
                     angular.forEach(this._element.children(), function (item) {
                         var $item = angular.element(item);
-                        if ($item.hasClass(that._options.filterClass)) {
+                        if (that._options.filterSelector && match(item, that._options.filterSelector)) {
                             $item.removeClass(that._options.hoverClass);
-                            return;
-                        }
-                        if ($item.hasClass(that._options.selectorClass)) {
-                            $items.push($item);
-                        }
-                        if ($item.hasClass(that._options.hoverClass)) {
-                            $keyHover = $item;
+                        }else{
+                            if (!that._options.itemSelector || match(item, that._options.itemSelector)) {
+                                $items.push($item);
+                            }
+                            if ($item.hasClass(that._options.hoverClass)) {
+                                $keyHover = $item;
+                            }
                         }
                     });
 
