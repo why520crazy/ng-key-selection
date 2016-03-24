@@ -22,8 +22,5 @@
     "demo",
     "test",
     "tests"
-  ],
-  "dependencies": {
-    "angular": "~1.4.9"
-  }
+  ]
 }
