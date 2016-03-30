@@ -152,10 +152,10 @@
                     return height;
                 };
 
-                KeySelectionPlugin.prototype._scrollTo = function ($item) {
+                KeySelectionPlugin.prototype._scrollTo = function (item) {
                     var scrollContainer = this.scrollContainer.body ? this.scrollContainer.body : this.scrollContainer;
-                    var itemOffsetTop = this._getOffset($item[0]).top;
-                    var itemOuterHeight = this._getOuterHeight($item[0]);
+                    var itemOffsetTop = this._getOffset(item).top;
+                    var itemOuterHeight = this._getOuterHeight(item);
                     var containerHeight = this._getOuterHeight(this.scrollContainer);
                     var containerTop = this._getOffset(scrollContainer).top;
                     var containerScrollTop = scrollContainer.scrollTop;
@@ -170,44 +170,49 @@
                     }
                 };
 
-                KeySelectionPlugin.prototype._switch = function (type, event) {
-                    var $items = [], $keyHover = null, that = this;
+                KeySelectionPlugin.prototype._getAllItems = function () {
+                    var items = [], that = this;
                     angular.forEach(this._$element.children(), function (item) {
-                        var $item = angular.element(item);
-                        if (that._options.filterSelector && match(item, that._options.filterSelector)) {
-                            $item.removeClass(that._options.hoverClass);
-                        } else {
+                        if (!that._options.filterSelector || !match(item, that._options.filterSelector)) {
                             if (!that._options.itemSelector || match(item, that._options.itemSelector)) {
-                                $items.push($item);
-                            }
-                            if ($item.hasClass(that._options.hoverClass)) {
-                                $keyHover = $item;
+                                items.push(item);
                             }
                         }
                     });
-                    if ($items.length <= 0) {
+                    return items;
+                };
+
+                KeySelectionPlugin.prototype._getFirstItem = function () {
+                    var firstItem = null, that = this;
+                    angular.forEach(this._$element.children(), function (item) {
+                        if (firstItem) {
+                            return firstItem;
+                        } else if (!that._options.filterSelector || !match(item, that._options.filterSelector)) {
+                            if (!that._options.itemSelector || match(item, that._options.itemSelector)) {
+                                firstItem = item;
+                            }
+                        }
+                    });
+                    return firstItem;
+                };
+
+                KeySelectionPlugin.prototype._switch = function (type, event) {
+                    var items = this._getAllItems();
+                    if (items.length <= 0) {
                         return;
                     }
-                    var index = $items.indexOf($keyHover);
-                    $keyHover && $keyHover.removeClass(this._options.hoverClass);
-                    if (type === 'up') {
-                        if (index > 0) {
-                            $keyHover = $items[index - 1].addClass(this._options.hoverClass);
-                        } else {
-                            $keyHover = $items[$items.length - 1].addClass(this._options.hoverClass);
-                        }
-                    } else {
-                        if ($items.length > index + 1) {
-                            $keyHover = $items[index + 1].addClass(this._options.hoverClass);
-                        } else {
-                            $keyHover = $items[0].addClass(this._options.hoverClass);
-                        }
+                    //如果keyHover没有,找到样式为 hoverClass 的元素
+                    if (!this.keyHover && this._options.itemSelector) {
+                        this.keyHover = this._$element[0].querySelector("." + this._options.hoverClass);
                     }
-                    this.$keyHover = $keyHover;
-                    $timeout(function () {
-                        this._options.callbacks.hover(event, $keyHover);
-                    }.bind(this));
-                    this._scrollTo($keyHover);
+                    var index = items.indexOf(this.keyHover);
+                    var newHoverElement = null;
+                    if (type === 'up') {
+                        newHoverElement = index > 0 ? items[index - 1] : items[items.length - 1];
+                    } else {
+                        newHoverElement = items.length > index + 1 ? items[index + 1] : items[0];
+                    }
+                    this.hover(newHoverElement, event);
                 };
 
                 KeySelectionPlugin.prototype.up = function (event) {
@@ -218,11 +223,33 @@
                     this._switch('down', event);
                 };
 
+                KeySelectionPlugin.prototype.hover = function (element, event) {
+                    var _toFirst = false;
+                    if (element === 'first') {
+                        _toFirst = true;
+                        var element = this._getFirstItem();
+                        if (!element) {
+                            return;
+                        }
+                    }
+                    if (!element) {
+                        return;
+                    }
+                    this.keyHover && angular.element(this.keyHover).removeClass(this._options.hoverClass);
+                    this.keyHover = element;
+                    var $keyHover = angular.element(this.keyHover);
+                    $keyHover.addClass(this._options.hoverClass);
+                    $timeout(function () {
+                        this._options.callbacks.hover(event, this.keyHover);
+                    }.bind(this));
+                    !_toFirst && this._scrollTo(this.keyHover);
+                };
+
                 KeySelectionPlugin.prototype.select = function (event) {
                     $timeout(function () {
-                        this._options.callbacks.select(event, this.$keyHover);
+                        this._options.callbacks.select(event, this.keyHover);
                     }.bind(this));
-                    this.$keyHover && this.$keyHover.addClass(this._options.selectedClass);
+                    this.keyHover && angular.element(this.keyHover).addClass(this._options.selectedClass);
                 };
 
                 KeySelectionPlugin.prototype.destroy = function () {
@@ -233,13 +260,16 @@
             }])
         .directive('keySelection', [
             'KeySelectionPlugin',
-            function (KeySelectionPlugin) {
+            '$parse',
+            function (KeySelectionPlugin, $parse) {
                 return {
                     restrict: 'A',
                     link    : function (scope, element, attrs) {
                         var options = scope.$eval(attrs.keySelection);
                         var selection = new KeySelectionPlugin(element, options);
-
+                        if (attrs.selectionRef) {
+                            $parse(attrs.selectionRef).assign(scope, selection);
+                        }
                         scope.$on("$destroy", function () {
                             selection.destroy();
                             delete selection;
