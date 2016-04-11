@@ -60,14 +60,27 @@
                 }
 
                 function KeySelectionPlugin(element, options) {
-                    var _options = angular.extend({}, _defaultOptions, options), _self = this;
+                    var _options = angular.extend({}, _defaultOptions, options);
                     if (options && options.callbacks) {
                         _options.callbacks = angular.extend({}, _defaultOptions.callbacks, options.callbacks);
                     }
                     this._options = _options;
                     this._$element = element;
 
+                    this._init();
+                };
+
+                KeySelectionPlugin.prototype._init = function () {
+                    //this._id = new Date().getTime() + Math.random().toString(36).substr(2);
+                    var _self = this;
+
+                    var scrollContainer =
+                        this._options.scrollContainer === 'body'
+                            ? $document[0]
+                            : $document[0].querySelector(this._options.scrollContainer);
+
                     this._keydownHandler = function (event) {
+
                         if (!_self._options.callbacks.beforeHover(event)) {
                             return;
                         }
@@ -98,16 +111,6 @@
                             _self._options.preventDefault && event.preventDefault();
                         }
                     };
-
-                    this._init();
-                };
-
-                KeySelectionPlugin.prototype._init = function () {
-                    //this._id = new Date().getTime() + Math.random().toString(36).substr(2);
-                    var scrollContainer =
-                        this._options.scrollContainer === 'body'
-                            ? $document[0]
-                            : $document[0].querySelector(this._options.scrollContainer);
 
                     (this._options.globalKey ? $document : angular.element(scrollContainer))
                         .on('keydown', this._keydownHandler);
