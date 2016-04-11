@@ -14,6 +14,7 @@
         preventDefault : true,
         scrollMargin   : 5,
         scrollContainer: "body",
+        eventContainer : "",//事件绑定的区域,当globalKey设置为false时起作用,默认为scrollContainer
         globalKey      : false,//是否是全局事件，如果为false,则会在scrollContainer绑定keydown事件，否则会在document上绑定
         keyActions     : [ //use any and as many keys you want. available actions: "select", "up", "down"
             {keyCode: 13, action: "select"}, //enter
@@ -112,8 +113,15 @@
                         }
                     };
 
-                    (this._options.globalKey ? $document : angular.element(scrollContainer))
-                        .on('keydown', this._keydownHandler);
+                    var _$EventElement = null;
+                    if (this._options.globalKey) {
+                        _$EventElement = $document;
+                    } else if (this._options.eventContainer) {
+                        _$EventElement = angular.element(this._options.eventContainer)
+                    } else {
+                        _$EventElement = angular.element(scrollContainer)
+                    }
+                    _$EventElement.on('keydown', this._keydownHandler);
                     this.scrollContainer = scrollContainer;
                 };
 
