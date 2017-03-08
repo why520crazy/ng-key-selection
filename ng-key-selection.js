@@ -1,23 +1,24 @@
 (function () {
     var _defaultOptions = {
-        hoverClass     : "key-hover",
-        selectedClass  : "selected",
-        itemSelector   : ".selection-item",
-        filterSelector : ".ng-hide",
-        callbacks      : {
+        hoverClass: "key-hover",
+        selectedClass: "selected",
+        itemSelector: ".selection-item",
+        filterSelector: ".ng-hide",
+        callbacks: {
             beforeHover: function () {
                 return true;
             },
-            hover      : angular.noop,
-            select     : angular.noop
+            hover: angular.noop,
+            select: angular.noop
         },
-        preventDefault : true,
-        scrollMargin   : 5,
+        preventDefault: true,
+        scrollMargin: 5,
         scrollContainer: "body",
-        delay          : 0, //初始化延迟的毫秒数,有时候angular模板没有编译结束,通过选择器找不到元素
-        eventContainer : "",//事件绑定的区域,当globalKey设置为false时起作用,默认为scrollContainer
-        globalKey      : false,//是否是全局事件，如果为false,则会在scrollContainer绑定keydown事件，否则会在document上绑定
-        keyActions     : [ //use any and as many keys you want. available actions: "select", "up", "down"
+        autoDeleteHoverAfterSelect: true,
+        delay: 0, //初始化延迟的毫秒数,有时候angular模板没有编译结束,通过选择器找不到元素
+        eventContainer: "",//事件绑定的区域,当globalKey设置为false时起作用,默认为scrollContainer
+        globalKey: false,//是否是全局事件，如果为false,则会在scrollContainer绑定keydown事件，否则会在document上绑定
+        keyActions: [ //use any and as many keys you want. available actions: "select", "up", "down"
             {keyCode: 13, action: "select"}, //enter
             {keyCode: 38, action: "up"}, //up
             {keyCode: 40, action: "down"}, //down
@@ -151,7 +152,7 @@
                         docElem = doc.documentElement;
 
                         return {
-                            top : rect.top + win.pageYOffset - docElem.clientTop,
+                            top: rect.top + win.pageYOffset - docElem.clientTop,
                             left: rect.left + win.pageXOffset - docElem.clientLeft
                         };
                     }
@@ -263,6 +264,9 @@
                 KeySelectionPlugin.prototype.select = function (event) {
                     $timeout(function () {
                         this._options.callbacks.select(event, this.keyHover);
+                        if (this._options.autoDeleteHoverAfterSelect) {
+                            this.keyHover = null;
+                        }
                     }.bind(this));
                     this.keyHover && angular.element(this.keyHover).addClass(this._options.selectedClass);
                 };
@@ -279,7 +283,7 @@
             function (KeySelectionPlugin, $parse) {
                 return {
                     restrict: 'A',
-                    link    : function (scope, element, attrs) {
+                    link: function (scope, element, attrs) {
                         var options = scope.$eval(attrs.keySelection);
                         var selection = new KeySelectionPlugin(element, options);
                         if (attrs.selectionRef) {
