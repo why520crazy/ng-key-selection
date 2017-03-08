@@ -190,13 +190,20 @@
                     }
                 };
 
+                KeySelectionPlugin.prototype.itemMatch = function (item) {
+                    if (!this._options.filterSelector || !match(item, this._options.filterSelector)) {
+                        if (!this._options.itemSelector || match(item, this._options.itemSelector)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                };
+
                 KeySelectionPlugin.prototype._getAllItems = function () {
                     var items = [], that = this;
                     angular.forEach(this._$element.children(), function (item) {
-                        if (!that._options.filterSelector || !match(item, that._options.filterSelector)) {
-                            if (!that._options.itemSelector || match(item, that._options.itemSelector)) {
-                                items.push(item);
-                            }
+                        if (that.itemMatch(item)) {
+                            items.push(item);
                         }
                     });
                     return items;
@@ -222,7 +229,7 @@
                         return;
                     }
                     //如果keyHover没有,找到样式为 hoverClass 的元素
-                    if (!this.keyHover && this._options.itemSelector) {
+                    if (!this.keyHover && this._options.hoverClass) {
                         this.keyHover = this._$element[0].querySelector("." + this._options.hoverClass);
                     }
                     var index = items.indexOf(this.keyHover);
@@ -279,6 +286,13 @@
                     if (this.keyHover) {
                         angular.element(this.keyHover).removeClass(this._options.hoverClass);
                         this.keyHover = null;
+                    }
+                };
+
+                KeySelectionPlugin.prototype.resetKeyHover = function () {
+                    if (this.keyHover
+                        && (!this.keyHover.parentNode || !this.itemMatch(this.keyHover))) {
+                        this.clearKeyHover()
                     }
                 };
 
