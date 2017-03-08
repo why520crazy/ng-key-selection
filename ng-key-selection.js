@@ -31,11 +31,15 @@
         return ( elem != null && elem === elem.window) ? elem : elem.nodeType === 9 && elem.defaultView;
     }
 
+
     angular.module('ng-key-selection', [])
-        .factory("KeySelectionPlugin", [
-            '$document',
-            '$timeout',
-            function ($document, $timeout) {
+        .provider('KeySelectionPlugin', function () {
+
+            this.setOptions = function (options) {
+                angular.extend(_defaultOptions, options);
+            };
+
+            function KeySelectionPlugin($document, $timeout) {
                 var proto = Element.prototype;
                 var vendor = proto.matches
                     || proto.matchesSelector
@@ -251,7 +255,7 @@
                     if (!element) {
                         return;
                     }
-                    this.keyHover && angular.element(this.keyHover).removeClass(this._options.hoverClass);
+                    this.clearKeyHover();
                     this.keyHover = element;
                     var $keyHover = angular.element(this.keyHover);
                     $keyHover.addClass(this._options.hoverClass);
@@ -265,10 +269,17 @@
                     $timeout(function () {
                         this._options.callbacks.select(event, this.keyHover);
                         if (this._options.autoDeleteHoverAfterSelect) {
-                            this.keyHover = null;
+                            this.clearKeyHover();
                         }
                     }.bind(this));
                     this.keyHover && angular.element(this.keyHover).addClass(this._options.selectedClass);
+                };
+
+                KeySelectionPlugin.prototype.clearKeyHover = function () {
+                    if (this.keyHover) {
+                        angular.element(this.keyHover).removeClass(this._options.hoverClass);
+                        this.keyHover = null;
+                    }
                 };
 
                 KeySelectionPlugin.prototype.destroy = function () {
@@ -276,7 +287,14 @@
                 };
 
                 return KeySelectionPlugin;
-            }])
+            }
+
+            this.$get = [
+                '$document',
+                '$timeout',
+                KeySelectionPlugin
+            ];
+        })
         .directive('keySelection', [
             'KeySelectionPlugin',
             '$parse',
