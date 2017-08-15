@@ -78,7 +78,7 @@
                         this._init();
                     }.bind(this), _options.delay)
 
-                };
+                }
 
                 KeySelectionPlugin.prototype._init = function () {
                     //this._id = new Date().getTime() + Math.random().toString(36).substr(2);
@@ -131,6 +131,7 @@
                         _$EventElement = angular.element(scrollContainer)
                     }
                     _$EventElement.on('keydown', this._keydownHandler);
+                    this.$eventElement = _$EventElement;
                     this.scrollContainer = scrollContainer;
                 };
 
@@ -297,7 +298,7 @@
                 };
 
                 KeySelectionPlugin.prototype.destroy = function () {
-                    $document.off('keydown', this._keydownHandler);
+                    this.$eventElement.off('keydown', this._keydownHandler);
                 };
 
                 return KeySelectionPlugin;
@@ -324,7 +325,7 @@
                         scope.$on("$destroy", function () {
                             selection.destroy();
                             delete selection;
-                        })
+                        });
                     }
                 }
             }]);
